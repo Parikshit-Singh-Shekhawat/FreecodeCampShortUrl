@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const dns = require('dns');
-const shortid = require('shortid')
+const shortid = require('shortid');
 const app = express();
 const bodyParser=require("body-parser");
+const urlParser=require("url");
 app.use(bodyParser.urlencoded({extended: false}));
 
 //set map for shortId and url 
@@ -40,14 +41,14 @@ app.get('/api/shorturl/:shorturl', function(req, res) {
 app.post("/api/shorturl", (req,res)=>{
 var input_url=req.body.url;
 if(is_validu_rl(input_url)){
-  var base_result = input_url.replace(/(^\w+:|^)\/\//, '');
+  var base_result = urlParser.parse(input_url).hostname;
+  console.log("urlParser->"+base_result);
   dns.lookup(base_result, function (err, addresses, family) {
     if(err){
       res.json({
         error:"invalid url"
       });
     } else{
-      
       if(urlMap.has(input_url)){
         res.json({
           original_url:input_url,
